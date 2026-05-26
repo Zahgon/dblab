@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"runtime/debug"
 
 	"github.com/danvergara/dblab/cmd"
@@ -41,21 +40,4 @@ func main() {
 
 // parseVersion parses the version passed as a parameter.
 // If the version is equal to unknown or (devel), it shows the commit hash as a revision.
-func parseVersion() string {
-	info, _ := debug.ReadBuildInfo()
-	v := info.Main.Version
-
-	if v == "unknown" || v == "(devel)" {
-		if Revision != "unknown" && Revision != "" {
-			commit := Revision
-			if len(commit) > 7 {
-				commit = commit[:7]
-			}
-			return fmt.Sprintf("rev: %s", commit)
-		}
-	} else {
-		return v
-	}
-
-	return "unknown"
-}
+func parseVersion() string { _ = "STUB: not implemented"; return "" }

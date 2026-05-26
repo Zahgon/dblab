@@ -1,8 +1,6 @@
 package seeds
 
 import (
-	"log"
-	"reflect"
 
 	// mysql driver.
 	_ "github.com/go-sql-driver/mysql"
@@ -23,41 +21,26 @@ type Seed struct {
 
 // Execute will executes the given seeder method.
 func Execute(db *sqlx.DB, driver string, seedMethodNames ...string) {
-	s := Seed{
-		db:     db,
-		driver: driver,
-	}
-
-	seedType := reflect.TypeOf(s)
-
-	// Executes all seeders if no method is given.
-	if len(seedMethodNames) == 0 {
-		log.Println("running all seeder...")
-		// We are looping over the method on a Seed struct.
-		for i := 0; i < seedType.NumMethod(); i++ {
-			// Get the method in the current iteration.
-			method := seedType.Method(i)
-			// Execute seeder.
-			seed(s, method.Name)
-		}
-	}
-
-	// Execute only the given method names
-	for _, item := range seedMethodNames {
-		seed(s, item)
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Executes all seeders if no method is given.
+
+// We are looping over the method on a Seed struct.
+
+// Get the method in the current iteration.
+
+// Execute seeder.
+
+// Execute only the given method names
 
 func seed(s Seed, seedMethodName string) {
+	_ = "STUB: not implemented"
 	// Get the reflect value of the method.
-	m := reflect.ValueOf(s).MethodByName(seedMethodName)
-	// Exit if the method doesn't exist.
-	if !m.IsValid() {
-		log.Fatal("no method called", seedMethodName)
-	}
-
-	// Execute the method.
-	log.Println("seeding", seedMethodName, "...")
-	m.Call(nil)
-	log.Println("seed", seedMethodName, "succeed")
+	return
 }
+
+// Exit if the method doesn't exist.
+
+// Execute the method.

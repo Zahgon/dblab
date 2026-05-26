@@ -1,19 +1,13 @@
 package bubbletui
 
 import (
-	"context"
 	"io"
-	"os"
 
-	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 
-	"github.com/common-nighthawk/go-figure"
 	"github.com/danvergara/dblab/pkg/client"
 	"github.com/danvergara/dblab/pkg/command"
-	"github.com/danvergara/dblab/pkg/drivers"
-	"github.com/davecgh/go-spew/spew"
 )
 
 type focusState int
@@ -120,227 +114,31 @@ type Model struct {
 }
 
 func NewModel(c *client.Client, kb *command.TUIKeyMap) (*Model, error) {
-	var dump *os.File
-	if _, ok := os.LookupEnv("DBLAB_DEBUG"); ok {
-		var err error
-		dump, err = os.OpenFile("messages.log", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o644)
-		if err != nil {
-			os.Exit(1)
-		}
-	}
-	ctx := context.Background()
-	svp, err := NewSidebarViewport(ctx, c, kb)
-	if err != nil {
-		return nil, err
-	}
-
-	dblabTitle := figure.NewFigure("dblab", "", true).String()
-
-	m := &Model{
-		focus:           focusEditor,
-		c:               c,
-		bindings:        kb,
-		editor:          NewEditor(kb),
-		sidebarViewport: svp,
-		resulstset:      NewResultSet(kb),
-		footer:          footerStyle.Render("\n  (Press Ctrl-C to exit. Keybindings are configurable, please see the documentation for more information.)"),
-		renderedTitle:   dblabTitle,
-		titleHeight:     lipgloss.Height(dblabTitle),
-		dump:            dump,
-	}
-
-	return m, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (m Model) Init() tea.Cmd {
-	return nil
-}
+func (m Model) Init() tea.Cmd { _ = "STUB: not implemented"; return *new(tea.Cmd) }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	if m.dump != nil {
-		spew.Fdump(m.dump, msg)
-	}
-	var cmds []tea.Cmd
-	var cmd tea.Cmd
-
-	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.height = msg.Height
-		m.width = msg.Width
-
-		availableHeight := m.height - lipgloss.Height(m.footer)
-
-		m.leftWidth = m.width / 5
-		m.rightWidth = m.width - m.leftWidth
-
-		m.titleWidth = m.leftWidth
-
-		m.sidebarViewportHeight = availableHeight - m.titleHeight - 2
-		m.sidebarViewportWidth = m.leftWidth
-
-		m.editorWidth = m.rightWidth - 4
-		m.editorHeight = availableHeight/3 - 2
-
-		m.resultSetHeight = availableHeight - m.editorHeight - 4
-		m.resultSetWidth = m.rightWidth - 4
-
-		m.editor.SetHeight(m.editorHeight)
-		m.editor.SetWidth(m.editorWidth)
-
-		m.sidebarViewport.SetSize(m.sidebarViewportWidth, m.sidebarViewportHeight)
-		m.resulstset.SetSize(m.resultSetWidth, m.resultSetHeight)
-		return m, tea.Batch(cmds...)
-
-	case tea.KeyPressMsg:
-		switch msg.String() {
-		case "ctrl+c":
-			return m, tea.Quit
-		}
-
-		switch {
-		case key.Matches(msg, m.bindings.Navigation.Right):
-			if m.focus == focusList {
-				m.focus = focusEditor
-				m.sidebarViewport.selected = false
-				cmd = m.editor.Focus()
-				cmds = append(cmds, cmd)
-			}
-			return m, tea.Batch(cmds...)
-		case key.Matches(msg, m.bindings.Navigation.Down):
-			if m.focus == focusEditor {
-				m.focus = focusTable
-				m.editor.Blur()
-				m.resulstset.Focus()
-			}
-		case key.Matches(msg, m.bindings.Navigation.Left):
-			if m.focus == focusTable {
-				m.focus = focusList
-				m.sidebarViewport.selected = true
-				m.resulstset.Blur()
-			}
-
-			if m.focus == focusEditor {
-				m.editor.Blur()
-				m.focus = focusList
-				m.sidebarViewport.selected = true
-			}
-		case key.Matches(msg, m.bindings.Navigation.Up):
-			if m.focus == focusTable {
-				m.focus = focusEditor
-				cmd = m.editor.Focus()
-				m.resulstset.Blur()
-				cmds = append(cmds, cmd)
-			}
-			return m, tea.Batch(cmds...)
-		}
-	case selectTableMsg:
-		tableRef := client.TableRef{Name: msg.Table}
-		switch m.c.Driver() {
-		case drivers.PostgreSQL, drivers.Postgres, drivers.PostgresSSH, drivers.Oracle:
-			tableRef.Schema = msg.Schema
-		}
-		return m, m.runTableMetadata(tableRef)
-	case executeQueryMsg:
-		return m, m.executeQueryCmd(msg.Query)
-	case metadataErrMsg, metadataSuccessMsg, queryErrMsg, querySuccessMsg:
-		m.resulstset, cmd = m.resulstset.Update(msg)
-		cmds = append(cmds, cmd)
-		m.sidebarViewport, cmd = m.sidebarViewport.Update(msg)
-		cmds = append(cmds, cmd)
-	}
-
-	switch m.focus {
-	case focusEditor:
-		m.editor, cmd = m.editor.Update(msg)
-		cmds = append(cmds, cmd)
-	case focusList:
-		m.sidebarViewport, cmd = m.sidebarViewport.Update(msg)
-		cmds = append(cmds, cmd)
-	case focusTable:
-		m.resulstset, cmd = m.resulstset.Update(msg)
-		cmds = append(cmds, cmd)
-	}
-
-	return m, tea.Batch(cmds...)
+	_ = "STUB: not implemented"
+	return *new(tea.Model), *new(tea.Cmd)
 }
 
-func (m Model) View() tea.View {
-	var v tea.View
-	v.AltScreen = true
+func (m Model) View() tea.View { _ = "STUB: not implemented"; return *new(tea.View) }
 
-	textAreaBorder := darkPurple
-
-	switch m.focus {
-	case focusEditor:
-		textAreaBorder = neonPurple
-	case focusTable:
-	}
-
-	fullFooter := m.footer
-	lipgloss.JoinVertical(
-		lipgloss.Left,
-		fullFooter,
-	)
-
-	tightBlock := lipgloss.NewStyle().
-		Align(lipgloss.Left).
-		Render(m.renderedTitle)
-
-	centeredLogo := titleStyle.
-		Width(m.titleWidth).
-		MaxHeight(m.titleHeight + 2).
-		Height(m.titleHeight).
-		Align(lipgloss.Center).
-		Render(tightBlock)
-
-	leftColumn := lipgloss.JoinVertical(lipgloss.Left, centeredLogo, m.sidebarViewport.View())
-	leftColumn = lipgloss.NewStyle().
-		Width(m.leftWidth).
-		MaxWidth(m.leftWidth).
-		Height(m.height - lipgloss.Height(m.footer)).
-		MaxHeight(m.height - lipgloss.Height(m.footer)).
-		Render(leftColumn)
-
-	styledEditor := editorStyle.BorderForeground(textAreaBorder).Width(m.editorWidth).Height(m.editorHeight).Render(m.editor.View().Content)
-	rightColumn := lipgloss.JoinVertical(lipgloss.Left, styledEditor, m.resulstset.View().Content)
-
-	contentLayout := lipgloss.JoinHorizontal(lipgloss.Bottom, leftColumn, rightColumn)
-	v.SetContent(lipgloss.JoinVertical(lipgloss.Left, contentLayout, fullFooter))
-	return v
-}
-
-func (m *Model) Run() error {
-	p := tea.NewProgram(m)
-	if _, err := p.Run(); err != nil {
-		return err
-	}
-
-	return nil
-}
+func (m *Model) Run() error { _ = "STUB: not implemented"; return nil }
 
 // runTableMetadata gets the given table's metadata asynchronously.
 // If the query succeeds, it returns metadataSucessMsg with the metadata, otherwise it returns metadataErrMsg with the error.
 func (m *Model) runTableMetadata(table client.TableRef) tea.Cmd {
-	return func() tea.Msg {
-		metadata, err := m.c.Metadata(table)
-		if err != nil {
-			return metadataErrMsg{err}
-		}
-
-		return metadataSuccessMsg{metadata}
-	}
+	_ = "STUB: not implemented"
+	return *new(tea.Cmd)
 }
 
 // executeQueryCmd method executes queryes asynchronously, so it does not block the bubbletea execution.
 // If it succeeds, returns a querySuccessMsg with the resultset. Otherwise, it returns queryErrMsg with the error.
 func (m *Model) executeQueryCmd(query string) tea.Cmd {
-	return func() tea.Msg {
-		var ts []string
-		rows, columns, err := m.c.Query(query)
-		if err != nil {
-			return queryErrMsg{err}
-		}
-
-		return querySuccessMsg{columns: columns, rows: rows, tables: ts}
-	}
+	_ = "STUB: not implemented"
+	return *new(tea.Cmd)
 }

@@ -1,25 +1,13 @@
 package sshdb
 
 import (
-	"context"
-	"database/sql"
 	"database/sql/driver"
-	"encoding/base64"
-	"errors"
-	"fmt"
-	"log"
 	"net"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
-	"github.com/go-sql-driver/mysql"
-	"github.com/lib/pq"
 	"golang.org/x/crypto/ssh"
-	"golang.org/x/crypto/ssh/knownhosts"
-
-	"github.com/danvergara/dblab/pkg/drivers"
 )
 
 // default path to the known_hosts file.
@@ -30,68 +18,26 @@ var defaultKnownHostsPath = filepath.Join(os.Getenv("HOME"), ".ssh")
 // 1. the file path
 // 2. the flag (e.g. os.O_CREATE|os.O_APPEND creates the file if not exists, if exists, appends to the file)
 // 3. the last argument is the permission.
-func createKnownHosts(knownHostsPath string) (err error) {
-	f, err := os.OpenFile(
-		filepath.Join(knownHostsPath, "known_hosts"),
-		os.O_CREATE,
-		0600,
-	)
-	defer func() {
-		err = errors.Join(err, f.Close())
-	}()
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
+func createKnownHosts(knownHostsPath string) (err error) { _ = "STUB: not implemented"; return nil }
 
 // checkKnownHosts fucntion creates a know_hosts callback function with the New function.
 // This callback function can be used to check if the host exists in the known_hosts file.
 func checkKnownHosts(knownHostsPath string) (ssh.HostKeyCallback, error) {
-	if knownHostsPath == "" {
-		knownHostsPath = defaultKnownHostsPath
-	}
-
-	if err := createKnownHosts(knownHostsPath); err != nil {
-		return nil, err
-	}
-
-	kh, err := knownhosts.New(filepath.Join(knownHostsPath, "known_hosts"))
-	if err != nil {
-		return nil, err
-	}
-
-	return kh, nil
+	_ = "STUB: not implemented"
+	return *new(ssh.HostKeyCallback), nil
 }
 
 // keyString create human-readable SSH-key strings.
-func keyString(k ssh.PublicKey) string {
-	return k.Type() + " " + base64.StdEncoding.EncodeToString(
-		k.Marshal(),
-	) // e.g. "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTY...."
-}
+func keyString(k ssh.PublicKey) string { _ = "STUB: not implemented"; return "" }
+
+// e.g. "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTY...."
 
 // addHostKey adds the host key to known_hosts file by using Normalize and Line functions of knownhosts package.
 // This functions implements the ssh.HostKeyCallback type wiich is a function type which signature goes like this:
 // type HostKeyCallback func(hostname string, remote net.Addr, key PublicKey) error.
 func addHostKey(_ string, remote net.Addr, pubKey ssh.PublicKey, knownHostsPath string) error {
-	if knownHostsPath == "" {
-		knownHostsPath = defaultKnownHostsPath
-	}
-
-	khFilePath := filepath.Join(knownHostsPath, "known_hosts")
-
-	f, err := os.OpenFile(khFilePath, os.O_APPEND|os.O_WRONLY, 0600)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	knownHosts := knownhosts.Normalize(remote.String())
-	_, err = f.WriteString(knownhosts.Line([]string{knownHosts}, pubKey))
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // PostgresViaSSHDialer implements the driver.Driver interface to register the connection to the database via the ssh tunnel.
@@ -100,18 +46,21 @@ type PostgresViaSSHDialer struct {
 }
 
 func (sd *PostgresViaSSHDialer) Open(s string) (_ driver.Conn, err error) {
-	return pq.DialOpen(sd, s)
+	_ = "STUB: not implemented"
+	return *new(driver.Conn), nil
 }
 
 func (sd *PostgresViaSSHDialer) Dial(network, address string) (net.Conn, error) {
-	return sd.client.Dial(network, address)
+	_ = "STUB: not implemented"
+	return *new(net.Conn), nil
 }
 
 func (sd *PostgresViaSSHDialer) DialTimeout(
 	network, address string,
 	timeout time.Duration,
 ) (net.Conn, error) {
-	return sd.client.Dial(network, address)
+	_ = "STUB: not implemented"
+	return *new(net.Conn), nil
 }
 
 // MySQLViaSSHDialer used to register the database connection via the ssh tunnel.
@@ -120,7 +69,8 @@ type MySQLViaSSHDialer struct {
 }
 
 func (m *MySQLViaSSHDialer) Dial(addr string) (net.Conn, error) {
-	return m.client.Dial("tcp", addr)
+	_ = "STUB: not implemented"
+	return *new(net.Conn), nil
 }
 
 // SSHConfig struct setup the ssh tunnel to connect with a given database.
@@ -139,68 +89,27 @@ type SSHConfig struct {
 
 type Option func(*SSHConfig)
 
-func New(opts ...Option) *SSHConfig {
-	c := &SSHConfig{}
+func New(opts ...Option) *SSHConfig { _ = "STUB: not implemented"; return nil }
 
-	for _, o := range opts {
-		o(c)
-	}
+func WithSSHUser(sshUser string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
-	return c
-}
+func WithPass(sshPass string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
-func WithSSHUser(sshUser string) Option {
-	return func(c *SSHConfig) {
-		c.sshUser = sshUser
-	}
-}
+func WithSSHKeyFile(sshKeyFile string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
-func WithPass(sshPass string) Option {
-	return func(c *SSHConfig) {
-		c.sshPass = sshPass
-	}
-}
+func WithSSHKeyPass(sshKeyPass string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
-func WithSSHKeyFile(sshKeyFile string) Option {
-	return func(c *SSHConfig) {
-		c.sshKeyFile = sshKeyFile
-	}
-}
+func WithSShHost(sshHost string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
-func WithSSHKeyPass(sshKeyPass string) Option {
-	return func(c *SSHConfig) {
-		c.sshKeyPass = sshKeyPass
-	}
-}
+func WithSShPort(sshPort string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
-func WithSShHost(sshHost string) Option {
-	return func(c *SSHConfig) {
-		c.sshHost = sshHost
-	}
-}
+func WithDBDriver(driver string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
-func WithSShPort(sshPort string) Option {
-	return func(c *SSHConfig) {
-		c.sshPort = sshPort
-	}
-}
-
-func WithDBDriver(driver string) Option {
-	return func(c *SSHConfig) {
-		c.dbDriver = driver
-	}
-}
-
-func WithDBDURL(url string) Option {
-	return func(c *SSHConfig) {
-		c.dbURL = url
-	}
-}
+func WithDBDURL(url string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 func WithKnownHostsPath(knownHostsPath string) Option {
-	return func(c *SSHConfig) {
-		c.knownHostsPath = knownHostsPath
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // SSHTunnel method sets up the ssh tunnel and does a number of things:
@@ -210,113 +119,22 @@ func WithKnownHostsPath(knownHostsPath string) Option {
 // Define the authentication method to perform the ssh tunnel (passsword or private key).
 // Register the ViaSSHDialer with the ssh connection as a parameter.
 func (c *SSHConfig) SSHTunnel() error {
+	_ = "STUB: not implemented"
 	// Reference: https://github.com/melbahja/goph/blob/master/client.go
 	// Reference: https://github.com/melbahja/goph/blob/master/hosts.go
 	// Study the client.go and hosts.go to understand how to write host key call back.
-	var (
-		keyErr      *knownhosts.KeyError
-		signer      ssh.Signer
-		parseKeyErr error
-	)
-	config := &ssh.ClientConfig{
-		User: c.sshUser,
-		HostKeyCallback: ssh.HostKeyCallback(
-			func(host string, remote net.Addr, pubKey ssh.PublicKey) error {
-				kh, err := checkKnownHosts(c.knownHostsPath)
-				if err != nil {
-					return err
-				}
-
-				hErr := kh(host, remote, pubKey)
-				if errors.As(hErr, &keyErr) && len(keyErr.Want) > 0 {
-					// Reference: https://www.godoc.org/golang.org/x/crypto/ssh/knownhosts#KeyError
-					// if keyErr.Want slice is empty then host is unknown, if keyErr.Want is not empty
-					// and if host is known then there is key mismatch the connection is then rejected.
-					log.Printf(
-						"%v is not a key of %s, either a MiTM attack or %s has reconfigured the host pub key.",
-						keyString(pubKey),
-						host,
-						host,
-					)
-					return keyErr
-				} else if errors.As(hErr, &keyErr) && len(keyErr.Want) == 0 {
-					// host key not found in known_hosts then give a warning and continue to connect.
-					log.Printf("%s is not trusted, adding this key: %q to known_hosts file.", host, keyString(pubKey))
-					return addHostKey(host, remote, pubKey, c.knownHostsPath)
-				}
-
-				log.Printf("pubkey exists for %s.", host)
-				return nil
-			},
-		),
-	}
-
-	if c.sshPass != "" {
-		config.Auth = []ssh.AuthMethod{ssh.Password(c.sshPass)}
-	} else if c.sshKeyFile != "" {
-		// Load the private key for SSH authentication.
-		key, err := os.ReadFile(c.sshKeyFile)
-		if err != nil {
-			return fmt.Errorf("error reading private key: %w", err)
-		}
-
-		// Parse the private using a passphrase if required.
-		if c.sshKeyPass != "" {
-			signer, parseKeyErr = ssh.ParsePrivateKeyWithPassphrase(key, []byte(c.sshKeyPass))
-		} else {
-			signer, parseKeyErr = ssh.ParsePrivateKey(key)
-		}
-		if parseKeyErr != nil {
-			return fmt.Errorf("error parsing private key: %w", parseKeyErr)
-		}
-
-		config.Auth = []ssh.AuthMethod{
-			ssh.PublicKeys(signer),
-		}
-	}
-
-	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%s", c.sshHost, c.sshPort), config)
-	if err != nil {
-		return fmt.Errorf("failed to connect to the ssh server: %w", err)
-	}
-
-	c.sshClient = client
-
-	switch c.dbDriver {
-	case drivers.PostgreSQL, drivers.Postgres:
-		sql.Register("postgres+ssh", &PostgresViaSSHDialer{c.sshClient})
-	case drivers.MySQL:
-		mysql.RegisterDialContext(
-			"mysql+tcp",
-			func(_ context.Context, addr string) (net.Conn, error) {
-				dialer := &MySQLViaSSHDialer{c.sshClient}
-				return dialer.Dial(addr)
-			},
-		)
-	}
-
-	if c.dbURL != "" {
-		switch {
-		case strings.Contains(c.dbURL, drivers.Postgres):
-			fallthrough
-		case strings.Contains(c.dbURL, drivers.PostgreSQL):
-			sql.Register("postgres+ssh", &PostgresViaSSHDialer{c.sshClient})
-		case strings.Contains(c.dbURL, drivers.MySQL):
-			mysql.RegisterDialContext(
-				"mysql+tcp",
-				func(_ context.Context, addr string) (net.Conn, error) {
-					dialer := &MySQLViaSSHDialer{c.sshClient}
-					return dialer.Dial(addr)
-				},
-			)
-		}
-
-	}
-
 	return nil
 }
 
+// Reference: https://www.godoc.org/golang.org/x/crypto/ssh/knownhosts#KeyError
+// if keyErr.Want slice is empty then host is unknown, if keyErr.Want is not empty
+// and if host is known then there is key mismatch the connection is then rejected.
+
+// host key not found in known_hosts then give a warning and continue to connect.
+
+// Load the private key for SSH authentication.
+
+// Parse the private using a passphrase if required.
+
 // Close method closes the tcp connection.
-func (c *SSHConfig) Close() error {
-	return c.sshClient.Close()
-}
+func (c *SSHConfig) Close() error { _ = "STUB: not implemented"; return nil }

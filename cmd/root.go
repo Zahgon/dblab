@@ -2,12 +2,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-
-	"github.com/danvergara/dblab/pkg/app"
-	"github.com/danvergara/dblab/pkg/command"
-	"github.com/danvergara/dblab/pkg/config"
-	"github.com/danvergara/dblab/pkg/connection"
-	"github.com/danvergara/dblab/pkg/form"
 )
 
 // Define all the global flags.
@@ -53,100 +47,21 @@ var (
 )
 
 // NewRootCmd returns the root command.
-func NewRootCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "dblab",
-		Short: "Interactive database client",
-		Long:  `dblab is a terminal UI based interactive database client`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			var opts command.Options
-			var err error
+func NewRootCmd() *cobra.Command { _ = "STUB: not implemented"; return nil }
 
-			// Default keybindings.
-			var kb = command.DefaultKeyMap()
+// Default keybindings.
 
-			if cfg {
-				opts, err = config.Init(cfgName)
-				if err != nil {
-					return err
-				}
-			} else {
-				opts = command.Options{
-					Driver:                 driver,
-					URL:                    url,
-					Host:                   host,
-					Port:                   port,
-					User:                   user,
-					Pass:                   pass,
-					DBName:                 db,
-					Schema:                 schema,
-					SSL:                    ssl,
-					Limit:                  limit,
-					Socket:                 socket,
-					SSLCert:                sslcert,
-					SSLKey:                 sslkey,
-					SSLPassword:            sslpassword,
-					SSLRootcert:            sslrootcert,
-					SSLVerify:              sslVerify,
-					TraceFile:              traceFile,
-					Wallet:                 wallet,
-					Encrypt:                encrypt,
-					TrustServerCertificate: trustServerCertificate,
-					ConnectionTimeout:      connectionTimeout,
-					SSHHost:                sshHost,
-					SSHPort:                sshPort,
-					SSHUser:                sshUser,
-					SSHPass:                sshPass,
-					SSHKeyFile:             sshKey,
-					SSHKeyPassphrase:       sshKeyPassphrase,
-				}
+// If the --keybindings flag is set, fill the keybindings with the ones fonud in the config file.
+// This is safe to do even if they're missing in the config files, because the config package has default values for it.
 
-				if form.IsEmpty(opts) {
-					opts, err = form.Run()
-					if err != nil {
-						return err
-					}
-				}
-			}
-
-			// If the --keybindings flag is set, fill the keybindings with the ones fonud in the config file.
-			// This is safe to do even if they're missing in the config files, because the config package has default values for it.
-			if keybindings {
-				kb, err = config.SetupKeyMap()
-				if err != nil {
-					return err
-				}
-			}
-
-			// Set the keybindings values, either the default ones or the found in the config file.
-			opts.UpdateKeybindings(kb)
-
-			if err := connection.ValidateOpts(opts); err != nil {
-				return err
-			}
-
-			app, err := app.New(opts)
-			if err != nil {
-				return err
-			}
-
-			if err := app.Run(); err != nil {
-				return err
-			}
-
-			return nil
-		},
-	}
-}
+// Set the keybindings values, either the default ones or the found in the config file.
 
 // rootCmd represents the base command when called without any subcommands.
 var rootCmd = NewRootCmd()
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
-	cobra.CheckErr(rootCmd.Execute())
-}
+func Execute() { _ = "STUB: not implemented"; return }
 
 func init() {
 	// Here you will define your flags and configuration settings.

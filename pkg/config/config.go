@@ -2,20 +2,11 @@ package config
 
 import (
 	"database/sql"
-	"errors"
-	"flag"
-	"fmt"
-	"os"
 
-	"charm.land/bubbles/v2/key"
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/sqlite3"
-	"github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/kkyr/fig"
 	"github.com/spf13/cobra"
 
 	"github.com/danvergara/dblab/pkg/command"
-	"github.com/danvergara/dblab/pkg/drivers"
 )
 
 // Config struct is used to store the db connection data.
@@ -106,273 +97,39 @@ type NavigationBindgins struct {
 }
 
 // New returns a config instance the with db connection data inplace based on the flags of a cobra command.
-func New(cmd *cobra.Command) *Config {
-	conf := &Config{}
-
-	cmd.PersistentFlags().StringVarP(&conf.User, "user", "", os.Getenv("DB_USER"), "DB user name")
-	cmd.PersistentFlags().StringVarP(&conf.Pswd, "pswd", "", os.Getenv("DB_PASSWORD"), "DB pass")
-	cmd.PersistentFlags().StringVarP(&conf.Port, "port", "", os.Getenv("DB_PORT"), "DB port")
-	cmd.PersistentFlags().StringVarP(&conf.Host, "host", "", os.Getenv("DB_HOST"), "DB host")
-	cmd.PersistentFlags().StringVarP(&conf.DBName, "name", "", os.Getenv("DB_NAME"), "DB name")
-	cmd.PersistentFlags().
-		StringVarP(&conf.Driver, "driver", "", os.Getenv("DB_DRIVER"), "DB driver")
-
-	return conf
-}
+func New(cmd *cobra.Command) *Config { _ = "STUB: not implemented"; return nil }
 
 // Init reads in config file and returns a commands/Options instance.
 func Init(configName string) (command.Options, error) {
-	var opts command.Options
-	var cfg Config
-	var db Database
-
-	configDir, err := os.UserConfigDir()
-	if err != nil {
-		return opts, err
-	}
-
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return opts, err
-	}
-
-	if err := fig.Load(&cfg, fig.File(".dblab.yaml"), fig.Dirs(".", home, configDir)); err != nil {
-		return opts, err
-	}
-
-	if len(cfg.Database) == 0 {
-		return opts, errors.New("empty database connection section on config file")
-	}
-
-	if configName != "" {
-		for _, d := range cfg.Database {
-			if configName == d.Name {
-				db = d
-			}
-		}
-	} else {
-		db = cfg.Database[0]
-	}
-
-	opts = command.Options{
-		Driver:                 db.Driver,
-		Host:                   db.Host,
-		Port:                   db.Port,
-		User:                   db.User,
-		Pass:                   db.Password,
-		DBName:                 db.DB,
-		Schema:                 db.Schema,
-		Limit:                  cfg.Limit,
-		SSL:                    db.SSL,
-		SSLCert:                db.SSLCert,
-		SSLKey:                 db.SSLKey,
-		SSLPassword:            db.SSLPassword,
-		SSLRootcert:            db.SSLRootcert,
-		TraceFile:              db.TraceFile,
-		SSLVerify:              db.SSLVerify,
-		Wallet:                 db.Wallet,
-		Encrypt:                db.Encrypt,
-		TrustServerCertificate: db.TrustServerCertificate,
-		ConnectionTimeout:      db.ConnectionTimeout,
-		SSHHost:                db.SSHHost,
-		SSHPort:                db.SSHPort,
-		SSHUser:                db.SSHUser,
-		SSHPass:                db.SSHPass,
-		SSHKeyFile:             db.SSHKeyFile,
-		SSHKeyPassphrase:       db.SSHKeyPassphrase,
-	}
-
-	return opts, nil
+	_ = "STUB: not implemented"
+	return *new(command.Options), nil
 }
 
 func SetupKeyMap() (command.TUIKeyMap, error) {
-	var kbc KeyMapConfig
-	var tkb command.TUIKeyMap
-
-	configDir, err := os.UserConfigDir()
-	if err != nil {
-		return tkb, err
-	}
-
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return tkb, err
-	}
-
-	if err := fig.Load(&kbc, fig.File(".dblab.yaml"), fig.Dirs(".", home, configDir)); err != nil {
-		return tkb, err
-	}
-
-	tkb = command.TUIKeyMap{
-		NextTab:         key.NewBinding(key.WithKeys(kbc.KeyBindings.NextTab), key.WithHelp(kbc.KeyBindings.NextTab, "next tab")),
-		PrevTab:         key.NewBinding(key.WithKeys(kbc.KeyBindings.PrevTab), key.WithHelp(kbc.KeyBindings.PrevTab, "previous tab")),
-		PageTop:         key.NewBinding(key.WithKeys(kbc.KeyBindings.PageTop), key.WithHelp(kbc.KeyBindings.PageTop, "go to top")),
-		PageBottom:      key.NewBinding(key.WithKeys(kbc.KeyBindings.PageBottom), key.WithHelp(kbc.KeyBindings.PageBottom, "go to bottom")),
-		EndOfLine:       key.NewBinding(key.WithKeys(kbc.KeyBindings.EndOfLine), key.WithHelp(kbc.KeyBindings.EndOfLine, "end of current line")),
-		BeginningOfLine: key.NewBinding(key.WithKeys(kbc.KeyBindings.BeginningOfLine), key.WithHelp(kbc.KeyBindings.BeginningOfLine, "beginning of current line")),
-		Navigation: command.TUINavigationKeyMap{
-			Up:    key.NewBinding(key.WithKeys(kbc.KeyBindings.Navigation.Up), key.WithHelp(kbc.KeyBindings.Navigation.Up, "Toggle to the panel above")),
-			Down:  key.NewBinding(key.WithKeys(kbc.KeyBindings.Navigation.Down), key.WithHelp(kbc.KeyBindings.Navigation.Down, "Toggle to the panel below")),
-			Left:  key.NewBinding(key.WithKeys(kbc.KeyBindings.Navigation.Left), key.WithHelp(kbc.KeyBindings.Navigation.Left, "Toggle to the panel on the left")),
-			Right: key.NewBinding(key.WithKeys(kbc.KeyBindings.Navigation.Right), key.WithHelp(kbc.KeyBindings.Navigation.Right, "Toggle to the panel on the right")),
-		},
-		Editor: command.EditorKeyMap{
-			Up:           key.NewBinding(key.WithKeys(kbc.KeyBindings.Editor.Up), key.WithHelp(kbc.KeyBindings.Editor.Up, "move up")),
-			Down:         key.NewBinding(key.WithKeys(kbc.KeyBindings.Editor.Down), key.WithHelp(kbc.KeyBindings.Editor.Down, "move down")),
-			Left:         key.NewBinding(key.WithKeys(kbc.KeyBindings.Editor.Left), key.WithHelp(kbc.KeyBindings.Editor.Left, "move left")),
-			Right:        key.NewBinding(key.WithKeys(kbc.KeyBindings.Editor.Right), key.WithHelp(kbc.KeyBindings.Editor.Right, "move right")),
-			Insert:       key.NewBinding(key.WithKeys(kbc.KeyBindings.Editor.Insert), key.WithHelp(kbc.KeyBindings.Editor.Insert, "insert mode")),
-			Normal:       key.NewBinding(key.WithKeys(kbc.KeyBindings.Editor.Normal), key.WithHelp(kbc.KeyBindings.Editor.Normal, "normal mode")),
-			ExecuteQuery: key.NewBinding(key.WithKeys(kbc.KeyBindings.Editor.ExecuteQuery), key.WithHelp(kbc.KeyBindings.Editor.ExecuteQuery, "execute query")),
-		},
-	}
-
-	return tkb, nil
+	_ = "STUB: not implemented"
+	return *new(command.TUIKeyMap), nil
 }
 
 // Open returns a db connection using the data from the config object.
-func (c *Config) Open() (*sql.DB, error) {
-	db, err := sql.Open(c.Driver, c.GetDBConnStr())
-	if err != nil {
-		fmt.Printf("Error Opening DB: %v \n", err)
-		return nil, err
-	}
-
-	return db, err
-}
+func (c *Config) Open() (*sql.DB, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // MigrateInstance returns a migrate instance based on the given driver.
 func (c *Config) MigrateInstance() (*migrate.Migrate, error) {
-	db, err := c.Open()
-	if err != nil {
-		return nil, err
-	}
-
-	switch c.Driver {
-	case drivers.SQLite:
-		dbDriver, err := sqlite3.WithInstance(db, &sqlite3.Config{})
-		if err != nil {
-			fmt.Printf("instance error: %v \n", err)
-			return nil, err
-		}
-
-		fileSource, err := (&file.File{}).Open("file://db/migrations")
-		if err != nil {
-			fmt.Printf("opening file error: %v \n", err)
-			return nil, err
-		}
-
-		m, err := migrate.NewWithInstance("file", fileSource, c.DBName, dbDriver)
-		if err != nil {
-			fmt.Printf("migrate error: %v \n", err)
-			return nil, err
-		}
-
-		return m, nil
-	case drivers.Postgres, drivers.MySQL, drivers.SQLServer:
-		m, err := migrate.New("file://db/migrations", c.GetDBConnStr())
-		if err != nil {
-			fmt.Printf("migrate error: %v \n", err)
-			return nil, err
-		}
-		return m, nil
-	default:
-		return nil, err
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Get returns a config object with the db connection data already in place.
-func Get() *Config {
-	conf := &Config{}
-
-	flag.StringVar(&conf.User, "dbuser", os.Getenv("DB_USER"), "DB user name")
-	flag.StringVar(&conf.Pswd, "dbpswd", os.Getenv("DB_PASSWORD"), "DB pass")
-	flag.StringVar(&conf.Port, "dbport", os.Getenv("DB_PORT"), "DB port")
-	flag.StringVar(&conf.Host, "dbhost", os.Getenv("DB_HOST"), "DB host")
-	flag.StringVar(&conf.DBName, "dbname", os.Getenv("DB_NAME"), "DB name")
-	flag.StringVar(&conf.Driver, "dbdriver", os.Getenv("DB_DRIVER"), "DB driver")
-
-	return conf
-}
+func Get() *Config { _ = "STUB: not implemented"; return nil }
 
 // GetDBConnStr returns the connection string.
-func (c *Config) GetDBConnStr() string {
-	return c.getDBConnStr(c.Host, c.DBName)
-}
+func (c *Config) GetDBConnStr() string { _ = "STUB: not implemented"; return "" }
 
 // GetSQLXDBConnStr returns the connection string.
-func (c *Config) GetSQLXDBConnStr() string {
-	return c.getSQLXConnStr(c.Host, c.DBName)
-}
+func (c *Config) GetSQLXDBConnStr() string { _ = "STUB: not implemented"; return "" }
 
 // getDBConnStr returns the connection string based on the provided host and db name.
-func (c *Config) getDBConnStr(dbhost, dbname string) string {
-	switch c.Driver {
-	case drivers.Postgres:
-		return fmt.Sprintf(
-			"%s://%s:%s@%s:%s/%s?sslmode=disable",
-			c.Driver,
-			c.User,
-			c.Pswd,
-			dbhost,
-			c.Port,
-			dbname,
-		)
-	case drivers.MySQL:
-		return fmt.Sprintf(
-			"%s://%s:%s@tcp(%s:%s)/%s",
-			c.Driver,
-			c.User,
-			c.Pswd,
-			dbhost,
-			c.Port,
-			dbname,
-		)
-	case drivers.SQLite:
-		return c.DBName
-	case drivers.SQLServer:
-		return fmt.Sprintf(
-			"%s://%s:%s@%s:%s?database=%s",
-			c.Driver,
-			c.User,
-			c.Pswd,
-			dbhost,
-			c.Port,
-			dbname,
-		)
-	default:
-		return ""
-	}
-}
+func (c *Config) getDBConnStr(dbhost, dbname string) string { _ = "STUB: not implemented"; return "" }
 
 // getSQLXConnStr returns the connection string based on the provided host and db name.
-func (c *Config) getSQLXConnStr(dbhost, dbname string) string {
-	switch c.Driver {
-	case drivers.Postgres:
-		return fmt.Sprintf(
-			"%s://%s:%s@%s:%s/%s?sslmode=disable",
-			c.Driver,
-			c.User,
-			c.Pswd,
-			dbhost,
-			c.Port,
-			dbname,
-		)
-	case drivers.MySQL:
-		return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", c.User, c.Pswd, dbhost, c.Port, dbname)
-	case drivers.SQLite:
-		return c.DBName
-	case drivers.SQLServer:
-		return fmt.Sprintf(
-			"%s://%s:%s@%s:%s?database=%s",
-			c.Driver,
-			c.User,
-			c.Pswd,
-			dbhost,
-			c.Port,
-			dbname,
-		)
-	default:
-		return ""
-	}
-}
+func (c *Config) getSQLXConnStr(dbhost, dbname string) string { _ = "STUB: not implemented"; return "" }

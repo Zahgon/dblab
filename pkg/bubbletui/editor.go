@@ -2,16 +2,10 @@ package bubbletui
 
 import (
 	"io"
-	"os"
-	"strings"
 
-	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/textarea"
 	tea "charm.land/bubbletea/v2"
-	"charm.land/lipgloss/v2"
-	"charm.land/lipgloss/v2/compat"
 	"github.com/danvergara/dblab/pkg/command"
-	"github.com/davecgh/go-spew/spew"
 )
 
 type Mode int
@@ -34,187 +28,27 @@ type Editor struct {
 	dump       io.Writer
 }
 
-func NewEditor(kb *command.TUIKeyMap) Editor {
-	var isDark = compat.HasDarkBackground
-	var dump *os.File
+func NewEditor(kb *command.TUIKeyMap) Editor { _ = "STUB: not implemented"; return *new(Editor) }
 
-	if _, ok := os.LookupEnv("DBLAB_DEBUG"); ok {
-		var err error
-		dump, err = os.OpenFile("editor_messages.log", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o644)
-		if err != nil {
-			os.Exit(1)
-		}
-	}
+func (e *Editor) SetWidth(w int) { _ = "STUB: not implemented"; return }
 
-	ta := textarea.New()
-	ta.Placeholder = "Enter text..."
-	s := textarea.DefaultStyles(isDark)
-	s.Focused.Text = lipgloss.NewStyle().Foreground(mutedGreen)
-	s.Blurred.Text = lipgloss.NewStyle().Foreground(lipgloss.Color("#555555"))
-	ta.SetStyles(s)
-	ta.Focus()
+func (e *Editor) SetHeight(h int) { _ = "STUB: not implemented"; return }
 
-	return Editor{editor: ta, bindings: kb, dump: dump}
-}
+func (e *Editor) Blur() { _ = "STUB: not implemented"; return }
 
-func (e *Editor) SetWidth(w int) {
-	e.editor.SetWidth(w - 4)
-}
+func (e *Editor) Focus() tea.Cmd { _ = "STUB: not implemented"; return *new(tea.Cmd) }
 
-func (e *Editor) SetHeight(h int) {
-	e.editor.SetHeight(h - 2)
-}
-
-func (e *Editor) Blur() {
-	e.editor.Blur()
-}
-
-func (e *Editor) Focus() tea.Cmd {
-	return e.editor.Focus()
-}
-
-func (e Editor) Init() tea.Cmd {
-	return nil
-}
+func (e Editor) Init() tea.Cmd { _ = "STUB: not implemented"; return *new(tea.Cmd) }
 
 func (e Editor) Update(msg tea.Msg) (Editor, tea.Cmd) {
-	if e.dump != nil {
-		spew.Fdump(e.dump, msg)
-	}
-	var cmd tea.Cmd
-	switch msg := msg.(type) {
-	case tea.KeyPressMsg:
-		if key.Matches(msg, e.bindings.Editor.ExecuteQuery) {
-			query := e.editor.Value()
-			if strings.TrimSpace(query) == "" {
-				return e, nil
-			}
-
-			fireQueryCmd := func() tea.Msg {
-				return executeQueryMsg{Query: query}
-			}
-
-			return e, fireQueryCmd
-		}
-
-		switch e.mode {
-		case NormalMode:
-			char := msg.String()
-			if e.pendingCmd != "" {
-				switch e.pendingCmd {
-				case "d":
-					if char == "d" {
-						e.deleteCurrentLine()
-					}
-					e.pendingCmd = ""
-					return e, nil
-
-				case "y":
-					if char == "y" {
-						e.yankCurrentLine()
-					}
-					e.pendingCmd = ""
-					return e, nil
-				}
-			}
-
-			switch char {
-			case "d", "y":
-				e.pendingCmd = char
-				return e, nil
-			case "p":
-				e.pasteAfter()
-				return e, nil
-			case "x":
-				e.editor, cmd = e.editor.Update(tea.KeyPressMsg{Code: tea.KeyDelete})
-				return e, cmd
-			case "0":
-				e.editor, cmd = e.editor.Update(tea.KeyPressMsg{Code: tea.KeyHome})
-				return e, cmd
-			case "$":
-				e.editor, cmd = e.editor.Update(tea.KeyPressMsg{Code: tea.KeyEnd})
-				return e, cmd
-			}
-
-			switch {
-			case key.Matches(msg, e.bindings.Editor.Insert):
-				e.mode = InsertMode
-				styles := e.editor.Styles()
-				styles.Cursor.Blink = true
-				e.editor.SetStyles(styles)
-				return e, nil
-
-			case key.Matches(msg, e.bindings.Editor.Left):
-				e.editor, cmd = e.editor.Update(tea.KeyPressMsg{Code: tea.KeyLeft})
-				return e, cmd
-
-			case key.Matches(msg, e.bindings.Editor.Right):
-				e.editor, cmd = e.editor.Update(tea.KeyPressMsg{Code: tea.KeyRight})
-				return e, cmd
-
-			case key.Matches(msg, e.bindings.Editor.Down):
-				e.editor.CursorDown()
-				return e, nil
-
-			case key.Matches(msg, e.bindings.Editor.Up):
-				e.editor.CursorUp()
-				return e, nil
-			}
-
-			return e, nil
-		case InsertMode:
-			switch {
-			case key.Matches(msg, e.bindings.Editor.Normal):
-				e.mode = NormalMode
-				styles := e.editor.Styles()
-				styles.Cursor.Blink = false
-				e.editor.SetStyles(styles)
-				e.editor, _ = e.editor.Update(tea.KeyPressMsg{Code: tea.KeyLeft})
-				return e, nil
-			}
-		}
-	}
-
-	e.editor, cmd = e.editor.Update(msg)
-	return e, cmd
+	_ = "STUB: not implemented"
+	return *new(Editor), *new(tea.Cmd)
 }
 
-func (e Editor) View() tea.View {
-	return tea.NewView(e.editor.View())
-}
+func (e Editor) View() tea.View { _ = "STUB: not implemented"; return *new(tea.View) }
 
-func (e *Editor) yankCurrentLine() {
-	lines := strings.Split(e.editor.Value(), "\n")
-	row := e.editor.Line()
+func (e *Editor) yankCurrentLine() { _ = "STUB: not implemented"; return }
 
-	if row >= 0 && row < len(lines) {
-		e.register = lines[row]
-	}
-}
+func (e *Editor) deleteCurrentLine() { _ = "STUB: not implemented"; return }
 
-func (e *Editor) deleteCurrentLine() {
-	lines := strings.Split(e.editor.Value(), "\n")
-	row := e.editor.Line()
-
-	if row >= 0 && row < len(lines) {
-		e.register = lines[row]
-
-		lines = append(lines[:row], lines[row+1:]...)
-
-		e.editor.SetValue(strings.Join(lines, "\n"))
-	}
-}
-
-func (e *Editor) pasteAfter() {
-	if e.register == "" {
-		return
-	}
-
-	lines := strings.Split(e.editor.Value(), "\n")
-	row := e.editor.Line()
-
-	if row >= 0 && row < len(lines) {
-		lines = append(lines[:row+1], append([]string{e.register}, lines[row+1:]...)...)
-		e.editor.SetValue(strings.Join(lines, "\n"))
-	}
-}
+func (e *Editor) pasteAfter() { _ = "STUB: not implemented"; return }

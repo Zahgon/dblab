@@ -1,19 +1,13 @@
 package form
 
 import (
-	"fmt"
-	"strconv"
-
 	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"charm.land/lipgloss/v2/compat"
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/muesli/termenv"
 
 	"github.com/danvergara/dblab/pkg/command"
-	"github.com/danvergara/dblab/pkg/drivers"
 )
 
 const (
@@ -71,330 +65,79 @@ type Model struct {
 
 // Init initialize the meta-model.
 func (m *Model) Init() tea.Cmd {
-	return textinput.Blink
+	_ = "STUB: not implemented"
+	return *
+
+	// Update update the view of the meta-model.
+	new(tea.Cmd)
 }
 
-// Update update the view of the meta-model.
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	_ = "STUB: not implemented"
 	// if the pressed keys are esc or ctrl + c, finish the execution.
-	if msg, ok := msg.(tea.KeyMsg); ok {
-		k := msg.String()
-		if k == "esc" || k == "ctrl+c" {
-			return m, tea.Quit
-		}
-	}
-
-	switch m.steps {
-	case 0:
-		return updateDriver(msg, m)
-	case 1:
-		return updateStd(msg, m)
-	case 2:
-		return updateSSLMode(msg, m)
-	case 3:
-		return updateSSLConn(msg, m)
-	}
-
-	return m, tea.Quit
+	return *new(tea.Model), *new(tea.Cmd)
 }
 
 // View displays the content on the terminal.
-func (m *Model) View() tea.View {
-	var s string
-
-	switch m.steps {
-	case 0:
-		s = driverView(m)
-	case 1:
-		s = standardView(m)
-	case 2:
-		s = sslView(m)
-	case 3:
-		s = sslConnView(m)
-	}
-
-	return tea.NewView(s)
-}
+func (m *Model) View() tea.View { _ = "STUB: not implemented"; return *new(tea.View) }
 
 // Host returns the host value.
-func (m *Model) Host() string {
-	return m.hostInput.Value()
-}
+func (m *Model) Host() string { _ = "STUB: not implemented"; return "" }
 
 // Port returns the Port value.
-func (m *Model) Port() string {
-	return m.portInput.Value()
-}
+func (m *Model) Port() string { _ = "STUB: not implemented"; return "" }
 
 // User returns the user value.
-func (m *Model) User() string {
-	return m.userInput.Value()
-}
+func (m *Model) User() string { _ = "STUB: not implemented"; return "" }
 
 // Password returns the password value.
-func (m *Model) Password() string {
-	return m.passwordInput.Value()
-}
+func (m *Model) Password() string { _ = "STUB: not implemented"; return "" }
 
 // Database returns the database name value.
-func (m *Model) Database() string {
-	return m.databaseInput.Value()
-}
+func (m *Model) Database() string { _ = "STUB: not implemented"; return "" }
 
 // SSLMode returns the ssl mode name value.
-func (m *Model) SSLMode() string {
-	return m.sslMode
-}
+func (m *Model) SSLMode() string { _ = "STUB: not implemented"; return "" }
 
-func (m *Model) SSLCert() string {
-	return m.sslCertInput.Value()
-}
+func (m *Model) SSLCert() string { _ = "STUB: not implemented"; return "" }
 
-func (m *Model) SSLKey() string {
-	return m.sslKeyInput.Value()
-}
+func (m *Model) SSLKey() string { _ = "STUB: not implemented"; return "" }
 
-func (m *Model) SSLPassword() string {
-	return m.sslPasswordInput.Value()
-}
+func (m *Model) SSLPassword() string { _ = "STUB: not implemented"; return "" }
 
-func (m *Model) SSLRootcert() string {
-	return m.sslRootcertInput.Value()
-}
+func (m *Model) SSLRootcert() string { _ = "STUB: not implemented"; return "" }
 
-func (m *Model) SSLVerify() string {
-	return m.sslVerifyInput.Value()
-}
+func (m *Model) SSLVerify() string { _ = "STUB: not implemented"; return "" }
 
-func (m *Model) TraceFile() string {
-	return m.traceFileInput.Value()
-}
+func (m *Model) TraceFile() string { _ = "STUB: not implemented"; return "" }
 
-func (m *Model) Wallet() string {
-	return m.walletInput.Value()
-}
+func (m *Model) Wallet() string { _ = "STUB: not implemented"; return "" }
 
-func (m *Model) TrustServerCertificate() string {
-	return m.trustServerCertificateInput.Value()
-}
+func (m *Model) TrustServerCertificate() string { _ = "STUB: not implemented"; return "" }
 
 // Limit returns the limit input value from the user.
 func (m *Model) Limit() (uint, error) {
+	_ = "STUB: not implemented"
 	// if the user skipped the question, resort to default value
-	if m.limitInput.Value() == "" {
-		return defaultLimit, nil
-	}
-	limit, err := strconv.Atoi(m.limitInput.Value())
-	if err != nil {
-		return uint(0), err
-	}
-
-	if limit <= 0 {
-		return uint(0), fmt.Errorf("invalid limit %d", limit)
-	}
-
-	return uint(limit), nil
+	return 0, nil
 }
 
 // FilePath returns the path to the database file (just in sqlite3) value.
-func (m *Model) FilePath() string {
-	return m.filePathInput.Value()
-}
+func (m *Model) FilePath() string { _ = "STUB: not implemented"; return "" }
 
-func checkbox(label string, checked bool) string {
-	if checked {
-		return colorFg("[x] "+label, "212")
-	}
-	return fmt.Sprintf("[ ] %s", label)
-}
+func checkbox(label string, checked bool) string { _ = "STUB: not implemented"; return "" }
 
 // Color a string's foreground with the given value.
-func colorFg(val, color string) string {
-	return termenv.String(val).Foreground(term.Color(color)).String()
-}
+func colorFg(val, color string) string { _ = "STUB: not implemented"; return "" }
 
-func initModel() Model {
-	s := textinput.DefaultStyles(isDark)
-	s.Focused.Prompt = focusedStyle
-	s.Focused.Text = focusedStyle
+func initModel() Model { _ = "STUB: not implemented"; return *new(Model) }
 
-	host := textinput.New()
-	host.Placeholder = "Host"
-	host.CharLimit = 200
-	host.SetStyles(s)
-	host.SetWidth(20)
-	host.Focus()
+// the supported drivers by the client.
 
-	port := textinput.New()
-	port.Placeholder = "Port"
-	port.CharLimit = 200
-	port.SetWidth(20)
-
-	user := textinput.New()
-	user.Placeholder = "Username"
-	user.CharLimit = 200
-	user.SetWidth(20)
-
-	password := textinput.New()
-	password.Placeholder = "Password"
-	password.EchoMode = textinput.EchoPassword
-	password.EchoCharacter = '*'
-	password.CharLimit = 200
-	password.SetWidth(20)
-
-	database := textinput.New()
-	database.Placeholder = "Database"
-	database.CharLimit = 200
-	database.SetWidth(20)
-
-	limit := textinput.New()
-	limit.Placeholder = "Limit"
-	limit.CharLimit = 200
-	limit.SetWidth(20)
-
-	filePath := textinput.New()
-	filePath.Placeholder = "File Path"
-	filePath.CharLimit = 1000
-	filePath.SetWidth(20)
-	filePath.Focus()
-
-	sslCert := textinput.New()
-	sslCert.Placeholder = "Client SSL certificate"
-	sslCert.CharLimit = 1000
-	sslCert.SetWidth(20)
-	sslCert.Focus()
-
-	sslKey := textinput.New()
-	sslKey.Placeholder = "The location for the secret key used for the client certificate"
-	sslKey.CharLimit = 1000
-	sslKey.SetWidth(20)
-
-	sslPassword := textinput.New()
-	sslPassword.Placeholder = "The password for the secret key"
-	sslPassword.CharLimit = 1000
-	sslPassword.SetWidth(20)
-
-	sslRootCert := textinput.New()
-	sslRootCert.Placeholder = "The name of a file containing SSL certificate authority (CA) certificate(s)"
-	sslRootCert.CharLimit = 1000
-	sslRootCert.SetWidth(20)
-
-	sslVerify := textinput.New()
-	sslVerify.Placeholder = "SSL Verify"
-	sslVerify.CharLimit = 200
-	sslVerify.SetWidth(20)
-
-	traceFile := textinput.New()
-	traceFile.Placeholder = "Trace file"
-	traceFile.CharLimit = 1000
-	traceFile.SetWidth(20)
-
-	wallet := textinput.New()
-	wallet.Placeholder = "Path to wallet"
-	wallet.CharLimit = 1000
-	wallet.SetWidth(20)
-
-	trustServerCertificate := textinput.New()
-	trustServerCertificate.Placeholder = "Server certificate is checked or not"
-	trustServerCertificate.CharLimit = 1000
-	trustServerCertificate.SetWidth(20)
-	trustServerCertificate.Focus()
-
-	m := Model{
-		// the supported drivers by the client.
-		drivers: []string{"postgres", "mysql", "sqlite", "oracle", "sqlserver"},
-		// our default value.
-		driver: "postgres",
-
-		sslMode:            "disable",
-		postgreSQLSSLModes: []string{"disable", "require", "verify-full", "verify-ca"},
-		mySQLSSLModes:      []string{"true", "false", "skip-verify", "preferred"},
-		oracleSSLModes:     []string{"enable", "disable"},
-		sqlServerSSLModes:  []string{"strict", "disable", "false", "true"},
-		sqliteSSLModes:     []string{},
-
-		hostInput:                   host,
-		portInput:                   port,
-		userInput:                   user,
-		passwordInput:               password,
-		databaseInput:               database,
-		limitInput:                  limit,
-		filePathInput:               filePath,
-		sslCertInput:                sslCert,
-		sslKeyInput:                 sslKey,
-		sslPasswordInput:            sslPassword,
-		sslRootcertInput:            sslRootCert,
-		sslVerifyInput:              sslVerify,
-		traceFileInput:              traceFile,
-		walletInput:                 wallet,
-		trustServerCertificateInput: trustServerCertificate,
-	}
-
-	return m
-}
+// our default value.
 
 // Run runs the menus programs to introduced the required data to connect with a database.
-func Run() (command.Options, error) {
-	m := initModel()
-	if _, err := tea.NewProgram(&m).Run(); err != nil {
-		return command.Options{}, err
-	}
-
-	limit, err := m.Limit()
-	if err != nil {
-		return command.Options{}, err
-	}
-
-	opts := command.Options{
-		Driver:                 m.driver,
-		Host:                   m.Host(),
-		Port:                   m.Port(),
-		User:                   m.User(),
-		Pass:                   m.Password(),
-		DBName:                 m.Database(),
-		SSL:                    m.SSLMode(),
-		SSLCert:                m.SSLCert(),
-		SSLKey:                 m.SSLKey(),
-		SSLPassword:            m.SSLPassword(),
-		SSLRootcert:            m.SSLRootcert(),
-		SSLVerify:              m.SSLVerify(),
-		TraceFile:              m.TraceFile(),
-		Wallet:                 m.Wallet(),
-		TrustServerCertificate: m.TrustServerCertificate(),
-		Limit:                  limit,
-	}
-
-	if m.driver == drivers.SQLServer {
-		opts.Encrypt = m.SSLMode()
-	}
-
-	if m.driver == "sqlite" {
-		opts.URL = fmt.Sprintf("file:%s", m.FilePath())
-	}
-
-	return opts, nil
-}
+func Run() (command.Options, error) { _ = "STUB: not implemented"; return *new(command.Options), nil }
 
 // IsEmpty checks if the given options objects is empty.
-func IsEmpty(opts command.Options) bool {
-	return cmp.Equal(
-		opts,
-		command.Options{},
-		cmpopts.IgnoreFields(
-			command.Options{},
-			"SSL",
-			"Limit",
-			"Socket",
-			"SSL",
-			"SSLCert",
-			"SSLKey",
-			"SSLPassword",
-			"SSLRootcert",
-			"TraceFile",
-			"SSLVerify",
-			"Wallet",
-			"TrustServerCertificate",
-			"TUIKeyBindings",
-		),
-	)
-}
+func IsEmpty(opts command.Options) bool { _ = "STUB: not implemented"; return false }
